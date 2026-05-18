@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import GlassPanel from "@/components/ui/GlassPanel";
 import { cn } from "@/lib/utils";
 
@@ -9,13 +8,15 @@ interface ChartEngineProps {
   onSystemChange: (system: string) => void;
   formData: { date: string; time: string; location: string };
   onFormDataChange: (data: { date: string; time: string; location: string }) => void;
+  activeSign: any;
 }
 
 export default function ChartEngine({ 
   activeSystem, 
   onSystemChange,
   formData,
-  onFormDataChange
+  onFormDataChange,
+  activeSign
 }: ChartEngineProps) {
   const systems = [
     { id: "vedic", label: "Vedic" },
@@ -25,7 +26,8 @@ export default function ChartEngine({
   ];
 
   return (
-    <div className="flex flex-col gap-6 w-[400px]">
+    <div className="flex flex-col gap-4 w-full">
+
       {/* Birth Data Form */}
       <GlassPanel>
         <h3 className="text-xs uppercase tracking-widest text-white/50 mb-4">Origin Parameters</h3>
@@ -36,7 +38,7 @@ export default function ChartEngine({
               <input 
                 type="date" 
                 value={formData.date}
-                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold/50 transition-all"
+                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold/50 transition-all text-white pointer-events-auto"
                 onChange={(e) => onFormDataChange({ ...formData, date: e.target.value })}
               />
             </div>
@@ -45,7 +47,7 @@ export default function ChartEngine({
               <input 
                 type="time" 
                 value={formData.time}
-                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold/50 transition-all"
+                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold/50 transition-all text-white pointer-events-auto"
                 onChange={(e) => onFormDataChange({ ...formData, time: e.target.value })}
               />
             </div>
@@ -55,7 +57,7 @@ export default function ChartEngine({
             <input 
               type="text" 
               value={formData.location}
-              className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold/50 transition-all"
+              className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold/50 transition-all text-white pointer-events-auto"
               onChange={(e) => onFormDataChange({ ...formData, location: e.target.value })}
             />
           </div>
@@ -70,7 +72,7 @@ export default function ChartEngine({
               key={s.id}
               onClick={() => onSystemChange(s.id)}
               className={cn(
-                "flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300",
+                "flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 pointer-events-auto",
                 activeSystem === s.id 
                   ? "bg-white/10 text-white shadow-lg" 
                   : "text-white/40 hover:text-white/60"
@@ -86,13 +88,11 @@ export default function ChartEngine({
             <MayanInterlock />
           ) : (
             <div className="space-y-2">
-              <div className="text-2xl font-light">
-                {activeSystem === "vedic" && "Rohini Nakshatra"}
-                {activeSystem === "western" && "Aries Sun"}
-                {activeSystem === "chinese" && "Year of the Dragon"}
+              <div className="text-2xl font-light tracking-wide text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]">
+                {activeSign?.name || "Calculating..."}
               </div>
-              <p className="text-xs text-white/40 max-w-[250px]">
-                Calculated based on {formData.date} at {formData.time}
+              <p className="text-[10px] text-white/40 uppercase tracking-widest max-w-[280px]">
+                Calculated based on {formData.date || "N/A"} at {formData.time || "N/A"}
               </p>
             </div>
           )}

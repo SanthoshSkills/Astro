@@ -8,19 +8,22 @@ interface ConstellationOverlayProps {
 }
 
 export default function ConstellationOverlay({ activeSign }: ConstellationOverlayProps) {
+  if (!activeSign) return null;
+  const paths = activeSign.paths || [];
+
   return (
     <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
       <svg className="w-full h-full overflow-visible">
         <AnimatePresence mode="wait">
           <motion.g
-            key={activeSign.id}
+            key={activeSign.id || "empty"}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1 }}
             className="origin-center translate-x-1/2 translate-y-1/2"
           >
-            {activeSign.paths.map((path, i) => (
+            {paths.map((path, i) => (
               <motion.path
                 key={i}
                 d={path}
@@ -39,3 +42,4 @@ export default function ConstellationOverlay({ activeSign }: ConstellationOverla
     </div>
   );
 }
+

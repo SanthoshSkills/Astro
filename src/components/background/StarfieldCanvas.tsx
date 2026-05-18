@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { AstrologicalSign } from "@/lib/mock-data";
 
 interface StarfieldCanvasProps {
   activeSystem: string;
   timelineValue: number;
   startDate: string;
-  activeSign: any; // Using any for brevity in interface expansion
+  activeSign: AstrologicalSign;
 }
 
 export default function StarfieldCanvas({ activeSystem, timelineValue, startDate, activeSign }: StarfieldCanvasProps) {
@@ -30,7 +31,7 @@ export default function StarfieldCanvas({ activeSystem, timelineValue, startDate
 
     const initStars = () => {
       stars = [];
-      const starCount = 600;
+      const starCount = 1200;
       for (let i = 0; i < starCount; i++) {
         stars.push({
           seedX: Math.random(),
@@ -45,7 +46,6 @@ export default function StarfieldCanvas({ activeSystem, timelineValue, startDate
 
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
       const rotationOffset = (timelineValue * 0.05) % (Math.PI * 2);
@@ -101,7 +101,8 @@ export default function StarfieldCanvas({ activeSystem, timelineValue, startDate
       window.removeEventListener("resize", resizeCanvas);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [timelineValue, activeSign]); // Re-run effect or track these values in draw if needed
+
 
   return (
     <canvas
