@@ -16,7 +16,7 @@ body {
 
 @layer utilities {
   .glass {
-    @apply bg-black/20 backdrop-blur-[2px] border border-white/5 shadow-2xl;
+    @apply bg-transparent border border-white/10 shadow-none;
   }
   .hud-border {
     @apply border-white/10 relative before:content-[''] before:absolute before:-top-1 before:-left-1 before:w-2 before:h-2 before:border-t-2 before:border-l-2 before:border-gold after:content-[''] after:absolute after:-bottom-1 after:-right-1 after:w-2 after:h-2 after:border-b-2 after:border-r-2 after:border-gold;

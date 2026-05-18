@@ -6,17 +6,21 @@ import { cn } from "@/lib/utils";
 interface ChartEngineProps {
   activeSystem: string;
   onSystemChange: (system: string) => void;
-  formData: { date: string; time: string; location: string };
-  onFormDataChange: (data: { date: string; time: string; location: string }) => void;
   activeSign: any;
+  onNext: () => void;
+  onPrev: () => void;
+  isPanorama: boolean;
+  onTogglePanorama: () => void;
 }
 
 export default function ChartEngine({ 
   activeSystem, 
   onSystemChange,
-  formData,
-  onFormDataChange,
-  activeSign
+  activeSign,
+  onNext,
+  onPrev,
+  isPanorama,
+  onTogglePanorama
 }: ChartEngineProps) {
   const systems = [
     { id: "vedic", label: "Vedic" },
@@ -26,46 +30,8 @@ export default function ChartEngine({
   ];
 
   return (
-    <div className="flex flex-col gap-4 w-full">
-
-      {/* Birth Data Form */}
+    <div className="flex flex-col gap-6 w-[400px]">
       <GlassPanel>
-        <h3 className="text-xs uppercase tracking-widest text-white/50 mb-4">Origin Parameters</h3>
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-[10px] text-white/40 uppercase">Date</label>
-              <input 
-                type="date" 
-                value={formData.date}
-                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold/50 transition-all text-white pointer-events-auto"
-                onChange={(e) => onFormDataChange({ ...formData, date: e.target.value })}
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] text-white/40 uppercase">Time</label>
-              <input 
-                type="time" 
-                value={formData.time}
-                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold/50 transition-all text-white pointer-events-auto"
-                onChange={(e) => onFormDataChange({ ...formData, time: e.target.value })}
-              />
-            </div>
-          </div>
-          <div className="space-y-1">
-            <label className="text-[10px] text-white/40 uppercase">Location</label>
-            <input 
-              type="text" 
-              value={formData.location}
-              className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold/50 transition-all text-white pointer-events-auto"
-              onChange={(e) => onFormDataChange({ ...formData, location: e.target.value })}
-            />
-          </div>
-        </div>
-      </GlassPanel>
-
-      {/* System Selection Matrix */}
-      <GlassPanel className="flex-1">
         <div className="flex gap-2 p-1 bg-black/20 rounded-xl mb-6">
           {systems.map((s) => (
             <button
@@ -83,64 +49,22 @@ export default function ChartEngine({
           ))}
         </div>
 
-        <div className="min-h-[200px] flex flex-col items-center justify-center text-center">
-          {activeSystem === "mayan" ? (
-            <MayanInterlock />
-          ) : (
-            <div className="space-y-2">
-              <div className="text-2xl font-light tracking-wide text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]">
-                {activeSign?.name || "Calculating..."}
-              </div>
-              <p className="text-[10px] text-white/40 uppercase tracking-widest max-w-[280px]">
-                Calculated based on {formData.date || "N/A"} at {formData.time || "N/A"}
-              </p>
-            </div>
-          )}
+        <div className="flex justify-between items-center bg-black/20 p-4 rounded-xl mb-4">
+            <button onClick={onPrev} disabled={isPanorama} className={cn("px-4 py-2 bg-white/5 rounded-lg text-xs hover:bg-white/10 transition-colors pointer-events-auto", isPanorama && "opacity-30 cursor-not-allowed")}>Prev</button>
+            <div className={cn("text-sm font-light text-white/80 px-4 transition-opacity", isPanorama && "opacity-30")}>{activeSign.name}</div>
+            <button onClick={onNext} disabled={isPanorama} className={cn("px-4 py-2 bg-white/5 rounded-lg text-xs hover:bg-white/10 transition-colors pointer-events-auto", isPanorama && "opacity-30 cursor-not-allowed")}>Next</button>
         </div>
+
+        <button 
+          onClick={onTogglePanorama}
+          className={cn(
+            "w-full px-4 py-3 rounded-lg text-xs uppercase tracking-widest transition-all",
+            isPanorama ? "bg-gold text-black" : "bg-white/5 text-white"
+          )}
+        >
+          {isPanorama ? "Panorama Active" : "Enable Panorama"}
+        </button>
       </GlassPanel>
-    </div>
-  );
-}
-
-function MayanInterlock() {
-  return (
-    <div className="relative w-48 h-48 flex items-center justify-center">
-      {/* Haab Wheel (Outer) */}
-      <div className="absolute inset-0 animate-[spin_60s_linear_infinite] opacity-30">
-        <svg viewBox="0 0 100 100" className="w-full h-full">
-          <circle cx="50" cy="50" r="48" fill="none" stroke="white" strokeWidth="0.5" strokeDasharray="2 2" />
-          {[...Array(18)].map((_, i) => (
-            <line 
-              key={i} 
-              x1="50" y1="2" x2="50" y2="8" 
-              transform={`rotate(${i * 20} 50 50)`} 
-              stroke="white" strokeWidth="0.5" 
-            />
-          ))}
-        </svg>
-      </div>
-
-      {/* Tzolk'in Wheel (Inner) */}
-      <div className="absolute inset-4 animate-[spin_20s_linear_infinite_reverse] opacity-60">
-        <svg viewBox="0 0 100 100" className="w-full h-full">
-          <circle cx="50" cy="50" r="48" fill="none" stroke="gold" strokeWidth="1" />
-          {[...Array(13)].map((_, i) => (
-            <text 
-              key={i} 
-              x="50" y="10" 
-              transform={`rotate(${i * (360/13)} 50 50)`} 
-              className="text-[8px] fill-gold font-bold"
-              textAnchor="middle"
-            >
-              {i + 1}
-            </text>
-          ))}
-        </svg>
-      </div>
-
-      <div className="z-10 text-xs font-bold text-white uppercase tracking-tighter">
-        Interlock
-      </div>
     </div>
   );
 }

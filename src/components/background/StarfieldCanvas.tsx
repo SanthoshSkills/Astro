@@ -7,11 +7,19 @@ interface StarfieldCanvasProps {
   activeSystem: string;
   timelineValue: number;
   startDate: string;
-  activeSign: AstrologicalSign;
+  activeSigns: AstrologicalSign[];
+  isPanorama: boolean;
 }
 
-export default function StarfieldCanvas({ activeSystem, timelineValue, startDate, activeSign }: StarfieldCanvasProps) {
+export default function StarfieldCanvas({ activeSystem, timelineValue, startDate, activeSigns, isPanorama }: StarfieldCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const activeSignsRef = useRef(activeSigns);
+  const isPanoramaRef = useRef(isPanorama);
+
+  useEffect(() => {
+    activeSignsRef.current = activeSigns;
+    isPanoramaRef.current = isPanorama;
+  }, [activeSigns, isPanorama]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -21,7 +29,7 @@ export default function StarfieldCanvas({ activeSystem, timelineValue, startDate
     if (!ctx) return;
 
     let animationFrameId: number;
-    let stars: { x: number; y: number; size: number; opacity: number; seedX: number; seedY: number }[] = [];
+    let stars: { size: number; opacity: number; seedX: number; seedY: number }[] = [];
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
@@ -36,8 +44,6 @@ export default function StarfieldCanvas({ activeSystem, timelineValue, startDate
         stars.push({
           seedX: Math.random(),
           seedY: Math.random(),
-          x: 0,
-          y: 0,
           size: Math.random() * 1.5 + 0.5,
           opacity: Math.random(),
         });
@@ -46,47 +52,71 @@ export default function StarfieldCanvas({ activeSystem, timelineValue, startDate
 
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      const rotationOffset = (timelineValue * 0.05) % (Math.PI * 2);
 
-      // Draw Background Stars
+      // Draw Background Stars (Full Sky - Static)
       stars.forEach((star) => {
-        const radius = Math.sqrt(Math.pow(star.seedX * 2 - 1, 2) + Math.pow(star.seedY * 2 - 1, 2)) * Math.max(canvas.width, canvas.height);
-        const angle = Math.atan2(star.seedY * 2 - 1, star.seedX * 2 - 1) + rotationOffset;
+        const drawX = star.seedX * canvas.width;
+        const drawY = star.seedY * canvas.height;
 
-        const x = centerX + radius * Math.cos(angle);
-        const y = centerY + radius * Math.sin(angle);
-
-        if (x > -100 && x < canvas.width + 100 && y > -100 && y < canvas.height + 100) {
-          ctx.globalAlpha = star.opacity * 0.5;
-          ctx.fillStyle = "white";
-          ctx.beginPath();
-          ctx.arc(x, y, star.size, 0, Math.PI * 2);
-          ctx.fill();
-        }
+        ctx.globalAlpha = star.opacity * 0.9;
+        ctx.fillStyle = "white";
+        ctx.beginPath();
+        ctx.arc(drawX, drawY, star.size, 0, Math.PI * 2);
+        ctx.fill();
       });
 
-      // Draw Major Constellation Stars (The "Actuals")
-      if (activeSign && activeSign.starPoints) {
-        activeSign.starPoints.forEach(([sx, sy]: [number, number]) => {
-          // Major stars don't rotate with the background to stay synced with SVG overlay
-          const x = centerX + sx;
-          const y = centerY + sy;
+      // Draw Constellations
+      const currentSigns = activeSignsRef.current;
+      if (currentSigns) {
+        currentSigns.forEach((sign) => {
+          // Draw Major Stars
+          if (sign.starPoints) {
+            sign.starPoints.forEach(([sx, sy]: [number, number]) => {
+              const drawX = sx + (sign.celestialX * canvas.width);
+              const drawY = sy + (sign.celestialY * canvas.height);
 
-          ctx.globalAlpha = 1;
-          ctx.fillStyle = "#FFD700"; // Gold
-          ctx.beginPath();
-          ctx.arc(x, y, 3, 0, Math.PI * 2); // Larger stars
-          ctx.fill();
-          
-          // Outer glow for major stars
-          ctx.shadowBlur = 15;
-          ctx.shadowColor = "gold";
-          ctx.beginPath();
-          ctx.arc(x, y, 4, 0, Math.PI * 2);
-          ctx.stroke();
-          ctx.shadowBlur = 0;
+              ctx.globalAlpha = 1;
+              ctx.fillStyle = "#FFFFFF";
+              ctx.beginPath();
+              ctx.arc(drawX, drawY, 2, 0, Math.PI * 2); 
+              ctx.fill();
+              
+              ctx.shadowBlur = 10;
+              ctx.shadowColor = "white";
+              ctx.beginPath();
+              ctx.arc(drawX, drawY, 2, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.shadowBlur = 0;
+            });
+          }
+
+          // Draw Tracing
+          if (sign.paths) {
+            ctx.strokeStyle = "#FFD700";
+            ctx.lineWidth = 3;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = "gold";
+
+            sign.paths.forEach((pathStr) => {
+              ctx.save();
+              ctx.translate(sign.celestialX * canvas.width, sign.celestialY * canvas.height);
+              ctx.stroke(new Path2D(pathStr));
+              ctx.restore();
+            });
+            ctx.shadowBlur = 0;
+          }
+
+          // Draw Name in Panorama Mode
+          if (isPanoramaRef.current) {
+            ctx.fillStyle = "#FFD700";
+            ctx.font = "bold 14px monospace"; // Increased size and added bold
+            ctx.shadowBlur = 5;
+            ctx.shadowColor = "black";
+            ctx.fillText(sign.names.en, (sign.celestialX * canvas.width) + 15, (sign.celestialY * canvas.height) + 15);
+            ctx.shadowBlur = 0;
+          }
         });
       }
 
@@ -101,8 +131,7 @@ export default function StarfieldCanvas({ activeSystem, timelineValue, startDate
       window.removeEventListener("resize", resizeCanvas);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [timelineValue, activeSign]); // Re-run effect or track these values in draw if needed
-
+  }, []);
 
   return (
     <canvas
