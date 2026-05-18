@@ -6,9 +6,10 @@ import GlassPanel from "@/components/ui/GlassPanel";
 interface TimelineScrubberProps {
   value: number;
   onChange: (value: number) => void;
+  startDate: string;
 }
 
-export default function TimelineScrubber({ value, onChange }: TimelineScrubberProps) {
+export default function TimelineScrubber({ value, onChange, startDate }: TimelineScrubberProps) {
   const [localValue, setLocalValue] = useState(value);
 
   // Debounce the parent update to prevent CPU lag
@@ -21,7 +22,8 @@ export default function TimelineScrubber({ value, onChange }: TimelineScrubberPr
   }, [localValue, onChange]);
 
   const getYearLabel = (val: number) => {
-    return 2026 + Math.floor(val);
+    const startYear = new Date(startDate).getFullYear() || 1950;
+    return startYear + Math.floor(val);
   };
 
   return (

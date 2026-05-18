@@ -62,22 +62,10 @@ export default function StarfieldCanvas({ activeSystem }: StarfieldCanvasProps) 
     };
   }, []);
 
-  // System-specific offsets for "Auto-glide" effect
-  const getTransform = () => {
-    switch (activeSystem) {
-      case "vedic": return "translate3d(0, 0, 0) scale(1)";
-      case "western": return "translate3d(-5%, -5%, 0) scale(1.1)";
-      case "chinese": return "translate3d(5%, -5%, 0) scale(1.05)";
-      case "mayan": return "translate3d(0, 5%, 0) scale(1.2)";
-      default: return "translate3d(0, 0, 0) scale(1)";
-    }
-  };
-
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full transition-transform duration-[2000ms] ease-out will-change-transform"
-      style={{ transform: getTransform() }}
+      className="absolute inset-0 w-full h-full"
     />
   );
 }

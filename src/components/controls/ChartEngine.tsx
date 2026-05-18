@@ -7,15 +7,16 @@ import { cn } from "@/lib/utils";
 interface ChartEngineProps {
   activeSystem: string;
   onSystemChange: (system: string) => void;
+  formData: { date: string; time: string; location: string };
+  onFormDataChange: (data: { date: string; time: string; location: string }) => void;
 }
 
-export default function ChartEngine({ activeSystem, onSystemChange }: ChartEngineProps) {
-  const [formData, setFormData] = useState({
-    date: "2026-05-18",
-    time: "12:00",
-    location: "Global",
-  });
-
+export default function ChartEngine({ 
+  activeSystem, 
+  onSystemChange,
+  formData,
+  onFormDataChange
+}: ChartEngineProps) {
   const systems = [
     { id: "vedic", label: "Vedic" },
     { id: "western", label: "Western" },
@@ -35,8 +36,8 @@ export default function ChartEngine({ activeSystem, onSystemChange }: ChartEngin
               <input 
                 type="date" 
                 value={formData.date}
-                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:border-white/30"
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold/50 transition-all"
+                onChange={(e) => onFormDataChange({ ...formData, date: e.target.value })}
               />
             </div>
             <div className="space-y-1">
@@ -44,8 +45,8 @@ export default function ChartEngine({ activeSystem, onSystemChange }: ChartEngin
               <input 
                 type="time" 
                 value={formData.time}
-                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:border-white/30"
-                onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold/50 transition-all"
+                onChange={(e) => onFormDataChange({ ...formData, time: e.target.value })}
               />
             </div>
           </div>
@@ -54,8 +55,8 @@ export default function ChartEngine({ activeSystem, onSystemChange }: ChartEngin
             <input 
               type="text" 
               value={formData.location}
-              className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:border-white/30"
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:ring-1 focus:ring-gold/50 focus:border-gold/50 transition-all"
+              onChange={(e) => onFormDataChange({ ...formData, location: e.target.value })}
             />
           </div>
         </div>
