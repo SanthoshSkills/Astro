@@ -26,6 +26,16 @@ export default function TimelineScrubber({ value, onChange, startDate }: Timelin
     return startYear + Math.floor(val);
   };
 
+  const dashas = [
+    "Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"
+  ];
+
+  const getActiveDasha = (val: number) => {
+    // Simulate Dasha cycles (simplified for UX)
+    const index = Math.floor(val / 11) % dashas.length;
+    return `${dashas[index]} Mahadasha`;
+  };
+
   return (
     <GlassPanel className="w-full">
       <div className="flex flex-col gap-4">
@@ -38,7 +48,7 @@ export default function TimelineScrubber({ value, onChange, startDate }: Timelin
           </div>
           <div className="text-right">
             <div className="text-[10px] text-white/40 uppercase">Active Transit</div>
-            <div className="text-sm text-gold">Jupiter Mahadasha</div>
+            <div className="text-sm text-gold">{getActiveDasha(localValue)}</div>
           </div>
         </div>
 

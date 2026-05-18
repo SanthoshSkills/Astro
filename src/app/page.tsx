@@ -7,12 +7,7 @@ import ConstellationOverlay from "@/components/background/ConstellationOverlay";
 import ChartEngine from "@/components/controls/ChartEngine";
 import TimelineScrubber from "@/components/controls/TimelineScrubber";
 
-const SYSTEM_LABELS: Record<string, string> = {
-  vedic: "Nakshatra: Rohini",
-  western: "Zodiac: Aries",
-  chinese: "Lunar Mansion: Azure Dragon",
-  mayan: "Day Sign: Imix",
-};
+import { getActiveSign } from "@/lib/calculations";
 
 export default function Home() {
   const [activeSystem, setActiveSystem] = useState("vedic");
@@ -22,6 +17,8 @@ export default function Home() {
     time: "12:00",
     location: "Global",
   });
+
+  const activeSign = getActiveSign(activeSystem, formData.date, timelineValue);
 
   // System-specific "Camera" coordinates (X, Y, Zoom)
   const getCameraStyle = () => {
@@ -41,8 +38,13 @@ export default function Home() {
         className="fixed inset-0 z-0 transition-transform duration-[2500ms] cubic-bezier(0.2, 0, 0.2, 1) will-change-transform"
         style={getCameraStyle()}
       >
-        <StarfieldCanvas activeSystem={activeSystem} />
-        <ConstellationOverlay activeSystem={activeSystem} />
+        <StarfieldCanvas 
+          activeSystem={activeSystem} 
+          timelineValue={timelineValue}
+          startDate={formData.date}
+          activeSign={activeSign}
+        />
+        <ConstellationOverlay activeSign={activeSign} />
       </div>
 
       {/* Static UI Layer */}
@@ -61,14 +63,14 @@ export default function Home() {
         <div className="flex-1 flex items-center justify-center">
           <AnimatePresence mode="wait">
             <motion.div
-              key={activeSystem}
+              key={activeSign.id}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.1 }}
               className="text-center px-4"
             >
-              <h2 className="text-3xl md:text-5xl font-extralight tracking-[0.4em] uppercase text-white/90 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] max-w-4xl mx-auto leading-relaxed">
-                {SYSTEM_LABELS[activeSystem]}
+              <h2 className="text-3xl md:text-5xl font-extralight tracking-[0.4em] uppercase text-white/90 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] max-w-4xl mx-auto leading-relaxed text-balance">
+                {activeSign.name}
               </h2>
             </motion.div>
           </AnimatePresence>
